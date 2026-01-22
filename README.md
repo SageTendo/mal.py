@@ -1,6 +1,6 @@
 # mal.py
 
-A basic async MyAnimeList (MAL) API wrapper for Python. Based off of [mal-stremio](https://github.com/mal-stremio/mal-stremio)'s MAL client.
+A basic async MyAnimeList (MAL) API wrapper for Python. Based off of [mal-stremio](https://github.com/SageTendo/mal-stremio-addon)'s MAL client.
 
 Features:
 
@@ -40,8 +40,19 @@ auth_url, code_verifier = client.get_auth()
 ### Get User Details
 
 ```python
-user = await client.get_user_details(token=token)
-print(user)
+async def main():
+  client_id = "your_client_id"
+  client_secret = "your_client_secret"
+  redirect_uri = "http://localhost:5000/callback"
+
+  client = Client(
+      client_id=client_id, client_secret=client_secret, callback_url=redirect_uri
+  )
+
+  user = await client.get_user_details(token=token)
+  print(user)
+
+asyncio.run(main())
 
 # <User(id=1, name=SageTendo)>
 ```
@@ -49,8 +60,19 @@ print(user)
 ### Get User Anime List
 
 ```python
-anime_list = await client.get_user_anime_list(token=token, limit=1)
-print(anime_list)
+async def main():
+  client_id = "your_client_id"
+  client_secret = "your_client_secret"
+  redirect_uri = "http://localhost:5000/callback"
+
+  client = Client(
+      client_id=client_id, client_secret=client_secret, callback_url=redirect_uri
+  )
+
+  anime_list = await client.get_user_anime_list(token=token, limit=1)
+  print(anime_list)
+
+asyncio.run(main())
 
 # [<Anime(id=1, title=Cowboy Bebop)>]
 ```
@@ -58,8 +80,19 @@ print(anime_list)
 ### Search Anime
 
 ```python
-anime_list = await client.search_anime(query="one piece", limit=1)
-print(anime_list)
+async def main():
+  client_id = "your_client_id"
+  client_secret = "your_client_secret"
+  redirect_uri = "http://localhost:5000/callback"
+
+  client = Client(
+      client_id=client_id, client_secret=client_secret, callback_url=redirect_uri
+  )
+
+  anime_list = await client.search_anime(query="one piece", limit=1)
+  print(anime_list)
+
+asyncio.run(main())
 
 # [<Anime(id=1, title=One Piece)>]
 ```
@@ -67,8 +100,19 @@ print(anime_list)
 ### Get Anime Details
 
 ```python
-anime = await client.get_anime_details(anime_id="1")
-print(anime.title)
+async def main():
+  client_id = "your_client_id"
+  client_secret = "your_client_secret"
+  redirect_uri = "http://localhost:5000/callback"
+
+  client = Client(
+      client_id=client_id, client_secret=client_secret, callback_url=redirect_uri
+  )
+
+  anime = await client.get_anime_details(anime_id="1")
+  print(anime.title)
+
+asyncio.run(main())
 
 # <Title(original=One Piece, english=One Piece, japanese=ワンピース)>
 ```
@@ -76,14 +120,25 @@ print(anime.title)
 ### Update Watched Status
 
 ```python
-watch_status = await client.update_watched_status(
+async def main():
+  client_id = "your_client_id"
+  client_secret = "your_client_secret"
+  redirect_uri = "http://localhost:5000/callback"
+
+  client = Client(
+      client_id=client_id, client_secret=client_secret, callback_url=redirect_uri
+  )
+
+  watch_status = await client.update_watched_status(
     token=token,
     anime_id="1",
     episode=1,
     status="watching",
     start_date="2022-01-01",
-)
-print(watch_status)
+  )
+  print(watch_status)
+
+asyncio.run(main())
 
 # <WatchStatus(anime_id=1, status=watching, num_watched_episodes=1, start_date=2022-01-01, finish_date=None)>
 ```
