@@ -30,7 +30,7 @@ class Auth:
     @property
     def refresh_token(self) -> str:
         return self._data.get("refresh_token")
-    
+
     def __repr__(self):
         return f"<Auth(token_type={self.token_type}, expires_in={self.expires_in}, access_token={self.access_token}, refresh_token={self.refresh_token})>"
 
@@ -397,7 +397,7 @@ class WatchStatus:
         self._anime_id = anime_id
 
     @property
-    def id(self) -> str:
+    def anime_id(self) -> str:
         return str(self._anime_id)
 
     @property
@@ -457,4 +457,4 @@ class WatchStatus:
         return self._data.get("comments")
 
     def __repr__(self):
-        return f"<WatchStatus(status={self.status}, num_watched_episodes={self.num_episodes_watched}, start_date={self.start_date}, finish_date={self.finish_date})>"
+        return f"<AnimeID={self.anime_id}, WatchStatus(status={self.status}, num_watched_episodes={self.num_episodes_watched}, start_date={self.start_date}, finish_date={self.finish_date})>"
