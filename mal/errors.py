@@ -16,6 +16,15 @@ class UnauthorizedError(Exception):
         super().__init__(response, message)
 
 
+class ForbiddenError(Exception):
+    """Exception when the API returns a 403 status code"""
+
+    def __init__(self, response, message):
+        self.response = response
+        self.message = message
+        super().__init__(response, message)
+
+
 class NotFoundError(Exception):
     """Exception when the API returns a 404 status code"""
 

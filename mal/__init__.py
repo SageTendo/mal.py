@@ -8,6 +8,7 @@ __all__ = (
     "Client",
     "BadRequestError",
     "UnauthorizedError",
+    "ForbiddenError",
     "NotFoundError",
     "HTTPError",
     "Anime",
@@ -16,6 +17,7 @@ __all__ = (
     "Relation",
     "Statistics",
     "Title",
+    "WatchStatus",
     "NSFW",
     "ImageSize",
 )
@@ -24,6 +26,7 @@ from .client import Client
 from .errors import (
     BadRequestError,
     UnauthorizedError,
+    ForbiddenError,
     NotFoundError,
     HTTPError,
 )
@@ -36,4 +39,5 @@ from .models import (
     Title,
     NSFW,
     ImageSize,
+    WatchStatus,
 )

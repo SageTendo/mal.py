@@ -6,11 +6,12 @@ import aiohttp
 
 from mal.errors import (
     BadRequestError,
+    ForbiddenError,
     HTTPError,
     NotFoundError,
     UnauthorizedError,
 )
-from mal.models import Anime, Auth, User
+from mal.models import Anime, Auth, User, WatchStatus
 
 AUTH_URL = "https://myanimelist.net/v1"
 BASE_URL = "https://api.myanimelist.net/v1"
@@ -64,7 +65,6 @@ class Client:
         if self._client_id:
             headers["X-MAL-CLIENT-ID"] = self._client_id
 
-        headers["Content-Type"] = "application/json"
         headers["User-Agent"] = "Mal.py (https://github.com/SageTendo/mal.py)"
         args["headers"] = headers
 
@@ -85,7 +85,7 @@ class Client:
             if resp.status == 401:
                 raise UnauthorizedError(resp, data)
             if resp.status == 403:
-                raise UnauthorizedError(resp, data)
+                raise ForbiddenError(resp, data)
             if resp.status == 404:
                 raise NotFoundError(resp, data)
             raise HTTPError(resp, data)
@@ -100,6 +100,24 @@ class Client:
 
             if resp.status == 400:
                 raise BadRequestError(resp, data)
+            if resp.status == 404:
+                raise NotFoundError(resp, data)
+            raise HTTPError(resp, data)
+
+    async def _put(self, url: str, **kwargs) -> dict:
+        self._set_headers(kwargs)
+        async with self._session.put(url, **kwargs) as resp:
+            data = await resp.json()
+
+            if resp.status == 200:
+                return data
+
+            if resp.status == 400:
+                raise BadRequestError(resp, data)
+            if resp.status == 401:
+                raise UnauthorizedError(resp, data)
+            if resp.status == 403:
+                raise ForbiddenError(resp, data)
             if resp.status == 404:
                 raise NotFoundError(resp, data)
             raise HTTPError(resp, data)
@@ -289,8 +307,8 @@ class Client:
         if finish_date:
             body["finish_date"] = finish_date
 
-        resp = await self._post(url, data=body, token=token)
-        return resp
+        resp = await self._put(url, data=body, token=token)
+        return WatchStatus(resp, anime_id=anime_id)
 
     @staticmethod
     def __to_query_string(kwargs):

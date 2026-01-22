@@ -30,6 +30,9 @@ class Auth:
     @property
     def refresh_token(self) -> str:
         return self._data.get("refresh_token")
+    
+    def __repr__(self):
+        return f"<Auth(token_type={self.token_type}, expires_in={self.expires_in}, access_token={self.access_token}, refresh_token={self.refresh_token})>"
 
 
 class User:
@@ -85,6 +88,9 @@ class User:
     @property
     def is_supporter(self) -> Optional[bool]:
         return self._data.get("is_following")
+
+    def __repr__(self):
+        return f"<User(id={self.id}, name={self.name})>"
 
 
 class Anime:
@@ -381,3 +387,74 @@ class Recommendation:
 
     def __repr__(self):
         return f"<Recommendation(id={self.id}, title={self.title}, num_recommendations={self.num_recommendations})>"
+
+
+class WatchStatus:
+    """Represents as user's watch status for an anime"""
+
+    def __init__(self, data, *, anime_id: str):
+        self._data = data
+        self._anime_id = anime_id
+
+    @property
+    def id(self) -> str:
+        return str(self._anime_id)
+
+    @property
+    def status(self) -> Optional[str]:
+        return self._data.get("status")
+
+    @property
+    def score(self) -> int:
+        return self._data.get("score")
+
+    @property
+    def num_episodes_watched(self) -> int:
+        return self._data.get("num_episodes_watched")
+
+    @property
+    def is_rewatching(self) -> bool:
+        return self._data.get("is_rewatching")
+
+    @property
+    def start_date(self) -> Optional[date]:
+        try:
+            date_string = self._data["start_date"]
+            return date.fromisoformat(date_string)
+        except (KeyError, TypeError, ValueError):
+            return None
+
+    @property
+    def finish_date(self) -> Optional[date]:
+        try:
+            date_string = self._data["finish_date"]
+            return date.fromisoformat(date_string)
+        except (KeyError, TypeError, ValueError):
+            return None
+
+    @property
+    def updated_at(self) -> Optional[datetime]:
+        try:
+            date_string = self._data["updated_at"]
+            return datetime.fromisoformat(date_string)
+        except (KeyError, TypeError, ValueError):
+            return None
+
+    @property
+    def num_rewatches(self) -> int:
+        return self._data.get("num_times_rewatched")
+
+    @property
+    def rewatch_value(self) -> int:
+        return self._data.get("rewatch_value")
+
+    @property
+    def tags(self) -> list[str]:
+        return self._data.get("tags")
+
+    @property
+    def comments(self) -> str:
+        return self._data.get("comments")
+
+    def __repr__(self):
+        return f"<WatchStatus(status={self.status}, num_watched_episodes={self.num_episodes_watched}, start_date={self.start_date}, finish_date={self.finish_date})>"
