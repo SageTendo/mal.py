@@ -143,6 +143,10 @@ asyncio.run(main())
 # <WatchStatus(anime_id=1, status=watching, num_watched_episodes=1, start_date=2022-01-01, finish_date=None)>
 ```
 
+## Credits
+
+- [Kitsu.py](https://github.com/AalbatrossGuy/kitsu.py)
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
