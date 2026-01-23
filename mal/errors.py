@@ -1,3 +1,25 @@
+class InputError(Exception):
+    """Exception when the input is invalid"""
+
+    def __init__(self, message):
+        self.message = message
+        super().__init__(message)
+
+class AuthenticationError(Exception):
+    """Exception when the authentication fails"""
+
+    def __init__(self, message):
+        self.message = message
+        super().__init__(message)
+
+class OAuthConfigError(Exception):
+    """Exception when the OAuth configuration is invalid"""
+
+    def __init__(self, message):
+        self.message = message
+        super().__init__(message)
+
+
 class BadRequestError(Exception):
     """Exception when the API returns a 400 status code"""
 

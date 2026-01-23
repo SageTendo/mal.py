@@ -11,6 +11,7 @@ __all__ = (
     "ForbiddenError",
     "NotFoundError",
     "HTTPError",
+    "InputError",
     "Anime",
     "User",
     "Auth",
@@ -47,6 +48,7 @@ from .errors import (
     ForbiddenError,
     NotFoundError,
     HTTPError,
+    InputError,
 )
 from .models import (
     User,
