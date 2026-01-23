@@ -1,12 +1,20 @@
 from datetime import date, datetime
-from typing import TYPE_CHECKING, Literal, Optional
+from typing import TYPE_CHECKING, Optional
+
+from mal.types import (
+    ANIME_RATING,
+    ANIME_SOURCE,
+    ANIME_STATUS,
+    IMAGE_SIZE,
+    MEDIA_TYPE,
+    NSFW,
+    RELATION_TYPE,
+    USER_ANIME_STATUS,
+)
 
 
 if TYPE_CHECKING:
     from mal.client import Client
-
-ImageSize = Literal["medium", "large"]
-NSFW = Literal["white", "gray", "black"]
 
 
 class Auth:
@@ -114,10 +122,10 @@ class Anime:
         }
         return Title(data)
 
-    def main_picture(self, size: ImageSize = "large") -> Optional[str]:
+    def main_picture(self, size: IMAGE_SIZE = "large") -> Optional[str]:
         return self._data.get("main_picture", {}).get(size)
 
-    def pictures(self, size: ImageSize = "large") -> list[str]:
+    def pictures(self, size: IMAGE_SIZE = "large") -> list[str]:
         return [
             image[size] for image in self._data.get("pictures", []) if image.get(size)
         ]
@@ -187,16 +195,18 @@ class Anime:
             return None
 
     @property
-    def media_type(self) -> Optional[str]:
+    def media_type(self) -> Optional[MEDIA_TYPE]:
         return self._data.get("media_type")
 
     @property
-    def status(self) -> Optional[str]:
+    def status(self) -> Optional[ANIME_STATUS]:
         return self._data.get("status")
 
     @property
-    def my_list_status(self) -> Optional[str]:
-        return self._data.get("my_list_status")
+    def my_list_status(self) -> Optional["WatchStatus"]:
+        if not self._data.get("my_list_status"):
+            return None
+        return WatchStatus(self._data.get("my_list_status"), anime_id=self.id)
 
     @property
     def num_episodes(self) -> Optional[int]:
@@ -215,7 +225,7 @@ class Anime:
         return self._data.get("broadcast")
 
     @property
-    def source(self) -> Optional[str]:
+    def source(self) -> Optional[ANIME_SOURCE]:
         return self._data.get("source")
 
     @property
@@ -223,7 +233,7 @@ class Anime:
         return self._data.get("average_episode_duration")
 
     @property
-    def rating(self) -> Optional[float]:
+    def rating(self) -> Optional[ANIME_RATING]:
         return self._data.get("rating")
 
     @property
@@ -337,11 +347,11 @@ class Relation:
         return self._data.get("node", {}).get("title")
 
     @property
-    def main_picture(self, size: ImageSize = "large") -> Optional[str]:
+    def main_picture(self, size: IMAGE_SIZE = "large") -> Optional[str]:
         return self._data.get("node", {}).get("main_picture", {}).get(size)
 
     @property
-    def relation_type(self) -> str:
+    def relation_type(self) -> RELATION_TYPE:
         return self._data.get("relation_type")
 
     @property
@@ -373,7 +383,7 @@ class Recommendation:
         return self._data.get("node", {}).get("title")
 
     @property
-    def main_picture(self, size: ImageSize = "large") -> Optional[str]:
+    def main_picture(self, size: IMAGE_SIZE = "large") -> Optional[str]:
         return self._data.get("node", {}).get("main_picture", {}).get(size)
 
     @property
@@ -401,7 +411,7 @@ class WatchStatus:
         return str(self._anime_id)
 
     @property
-    def status(self) -> Optional[str]:
+    def status(self) -> Optional[USER_ANIME_STATUS]:
         return self._data.get("status")
 
     @property

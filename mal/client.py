@@ -1,6 +1,6 @@
+from datetime import date
 import secrets
 from typing import Optional
-from urllib.parse import urlencode
 
 import aiohttp
 
@@ -12,12 +12,13 @@ from mal.errors import (
     UnauthorizedError,
 )
 from mal.models import Anime, Auth, User, WatchStatus
+from mal.types import USER_ANIME_STATUS, USER_LIST_SORT
 
 AUTH_URL = "https://myanimelist.net/v1"
 BASE_URL = "https://api.myanimelist.net/v1"
 N_BYTES = 96
 QUERY_LIMIT = 100
-TIMEOUT = 10
+OFFSET_LIMIT = 100
 CODE_CHALLENGE_METHOD = "plain"
 
 
@@ -41,7 +42,6 @@ class Client:
         client_secret: Optional[str] = None,
         client_id: Optional[str] = None,
         callback_url: Optional[str] = None,
-        access_token: Optional[str] = None,
         session: Optional[aiohttp.ClientSession] = None,
     ):
         self._client_id = client_id
@@ -227,25 +227,35 @@ class Client:
         resp = await self._get(url, token=token)
         return User(resp)
 
-    async def get_user_anime_list(self, *, token: str, limit: int = 1):
+    async def get_user_anime_list(
+        self,
+        *,
+        token: str,
+        limit: int = 1,
+        offset: int = 0,
+        sort: USER_LIST_SORT = "list_updated_at",
+        status: USER_ANIME_STATUS = "watching",
+    ):
         """
         Get a user's list of anime from MyAnimeList
         :param token: The user's access token
         :param limit: The number of results to return
-        :param kwargs: Additional query parameters
+        :param offset: The number of results to skip (used for pagination)
         :return: list[Anime]
         """
         if not token:
             raise ValueError("User Access Token Must Be Provided")
 
-        if limit < 1:
-            limit = 1
-
-        if limit > QUERY_LIMIT:
-            limit = QUERY_LIMIT
+        limit = max(0, min(limit, QUERY_LIMIT))
+        offset = max(0, min(offset, OFFSET_LIMIT))
 
         url = (
-            f"{BASE_URL}/users/@me/animelist?limit={limit}&fields={self.__ANIME_FIELDS}"
+            f"{BASE_URL}/users/@me/animelist?"
+            f"limit={limit}&"
+            f"offset={offset}&"
+            f"sort={sort}&"
+            f"status={status}&"
+            f"fields={self.__ANIME_FIELDS}"
         )
         resp = await self._get(url, token=token)
         return [Anime(anime["node"], client=self) for anime in resp["data"]]
@@ -263,7 +273,6 @@ class Client:
         Get a list of anime from MyAnimeList
         :param token: The user's access token
         :param query: The search query
-        :param kwargs: Additional query parameters
         :return: list[Anime]
         """
         if not query:
@@ -272,13 +281,10 @@ class Client:
         if len(query) < 3:
             raise ValueError("Query Must Be At Least 3 Characters")
 
-        if limit < 1:
-            limit = 1
+        limit = max(0, min(limit, QUERY_LIMIT))
+        offset = max(0, min(offset, OFFSET_LIMIT))
 
-        if limit > QUERY_LIMIT:
-            limit = QUERY_LIMIT
-
-        url = f"{BASE_URL}/anime?q={query}?limit={limit}&fields={self.__ANIME_FIELDS}"
+        url = f"{BASE_URL}/anime?q={query}?limit={limit}&offset={offset}&fields={self.__ANIME_FIELDS}"
         resp = await self._get(url, token=token)
         return [Anime(anime["node"], client=self) for anime in resp["data"]]
 
@@ -303,7 +309,7 @@ class Client:
         *,
         anime_id: str,
         episode: int,
-        status: str = "watching",
+        status: USER_ANIME_STATUS = "watching",
         start_date: str = "",
         finish_date: str = "",
         token: Optional[str] = None,
@@ -325,10 +331,18 @@ class Client:
         body = {"status": status, "num_watched_episodes": episode}
 
         if start_date:
-            body["start_date"] = start_date
+            try:
+                date.fromisoformat(start_date)
+                body["start_date"] = start_date
+            except ValueError:
+                raise ValueError("Invalid Start Date Provided")
 
         if finish_date:
-            body["finish_date"] = finish_date
+            try:
+                date.fromisoformat(finish_date)
+                body["finish_date"] = finish_date
+            except ValueError:
+                raise ValueError("Invalid Finish Date Provided")
 
         resp = await self._put(url, data=body, token=token)
         return WatchStatus(resp, anime_id=anime_id)

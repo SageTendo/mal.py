@@ -19,9 +19,27 @@ __all__ = (
     "Title",
     "WatchStatus",
     "NSFW",
-    "ImageSize",
+    "IMAGE_SIZE",
+    "ANIME_STATUS",
+    "USER_LIST_SORT",
+    "USER_ANIME_STATUS",
+    "MEDIA_TYPE",
+    "ANIME_SOURCE",
+    "ANIME_RATING",
+    "RELATION_TYPE",
 )
 
+from .types import (
+    IMAGE_SIZE,
+    NSFW,
+    ANIME_STATUS,
+    USER_LIST_SORT,
+    USER_ANIME_STATUS,
+    MEDIA_TYPE,
+    ANIME_SOURCE,
+    ANIME_RATING,
+    RELATION_TYPE,
+)
 from .client import Client
 from .errors import (
     BadRequestError,
@@ -37,7 +55,5 @@ from .models import (
     Relation,
     Statistics,
     Title,
-    NSFW,
-    ImageSize,
     WatchStatus,
 )
