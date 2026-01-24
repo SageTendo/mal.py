@@ -367,6 +367,3 @@ class Client:
 
         resp = await self._put(url, data=body, token=token)
         return WatchStatus(resp, anime_id=anime_id)
-
-    async def close(self):
-        await self._session.close()
