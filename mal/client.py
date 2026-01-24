@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from datetime import date
 import secrets
 from typing import Optional
@@ -50,8 +51,16 @@ class Client:
     ):
         self._client_id = client_id
         self._client_secret = client_secret
-        self._session = session or aiohttp.ClientSession()
+        self._session = session
         self._callback_url = callback_url
+
+    @asynccontextmanager
+    async def _get_session(self):
+        if self._session:
+            yield self._session
+        else:
+            async with aiohttp.ClientSession() as session:
+                yield session
 
     def _set_headers(self, args: dict):
         headers = args.pop("headers", {})
@@ -71,53 +80,56 @@ class Client:
 
     async def _get(self, url: str, **kwargs) -> dict:
         self._set_headers(kwargs)
-        async with self._session.get(url, **kwargs) as resp:
-            data = await resp.json()
+        async with self._get_session() as session:
+            async with session.get(url, **kwargs) as resp:
+                data = await resp.json()
 
-            if resp.status == 200:
-                return data
+                if resp.status == 200:
+                    return data
 
-            if resp.status == 400:
-                raise BadRequestError(resp, data)
-            if resp.status == 401:
-                raise UnauthorizedError(resp, data)
-            if resp.status == 403:
-                raise ForbiddenError(resp, data)
-            if resp.status == 404:
-                raise NotFoundError(resp, data)
-            raise HTTPError(resp, data)
+                if resp.status == 400:
+                    raise BadRequestError(resp, data)
+                if resp.status == 401:
+                    raise UnauthorizedError(resp, data)
+                if resp.status == 403:
+                    raise ForbiddenError(resp, data)
+                if resp.status == 404:
+                    raise NotFoundError(resp, data)
+                raise HTTPError(resp, data)
 
     async def _post(self, url: str, **kwargs) -> dict:
         self._set_headers(kwargs)
-        async with self._session.post(url, **kwargs) as resp:
-            data = await resp.json()
+        async with self._get_session() as session:
+            async with session.post(url, **kwargs) as resp:
+                data = await resp.json()
 
-            if resp.status == 200:
-                return data
+                if resp.status == 200:
+                    return data
 
-            if resp.status == 400:
-                raise BadRequestError(resp, data)
-            if resp.status == 404:
-                raise NotFoundError(resp, data)
-            raise HTTPError(resp, data)
+                if resp.status == 400:
+                    raise BadRequestError(resp, data)
+                if resp.status == 404:
+                    raise NotFoundError(resp, data)
+                raise HTTPError(resp, data)
 
     async def _put(self, url: str, **kwargs) -> dict:
         self._set_headers(kwargs)
-        async with self._session.put(url, **kwargs) as resp:
-            data = await resp.json()
+        async with self._get_session() as session:
+            async with session.put(url, **kwargs) as resp:
+                data = await resp.json()
 
-            if resp.status == 200:
-                return data
+                if resp.status == 200:
+                    return data
 
-            if resp.status == 400:
-                raise BadRequestError(resp, data)
-            if resp.status == 401:
-                raise UnauthorizedError(resp, data)
-            if resp.status == 403:
-                raise ForbiddenError(resp, data)
-            if resp.status == 404:
-                raise NotFoundError(resp, data)
-            raise HTTPError(resp, data)
+                if resp.status == 400:
+                    raise BadRequestError(resp, data)
+                if resp.status == 401:
+                    raise UnauthorizedError(resp, data)
+                if resp.status == 403:
+                    raise ForbiddenError(resp, data)
+                if resp.status == 404:
+                    raise NotFoundError(resp, data)
+                raise HTTPError(resp, data)
 
     def _check_required_oauth_info(self):
         if not self._client_id:
