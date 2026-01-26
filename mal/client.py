@@ -48,11 +48,15 @@ class Client:
         client_id: Optional[str] = None,
         callback_url: Optional[str] = None,
         session: Optional[aiohttp.ClientSession] = None,
+        resuse_session: bool = False,
     ):
         self._client_id = client_id
         self._client_secret = client_secret
         self._session = session
         self._callback_url = callback_url
+
+        if resuse_session and not self._session:
+            self._session = aiohttp.ClientSession()
 
     @asynccontextmanager
     async def _get_session(self):
@@ -367,3 +371,7 @@ class Client:
 
         resp = await self._put(url, data=body, token=token)
         return WatchStatus(resp, anime_id=anime_id)
+
+    async def close(self):
+        if self._session:
+            await self._session.close()

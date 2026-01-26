@@ -240,10 +240,12 @@ class Anime:
     def background(self) -> Optional[str]:
         return self._data.get("background")
 
-    async def related_anime(self) -> list["Relation"]:
+    @property
+    def related_anime(self) -> list["Relation"]:
         data = self._data.get("related_anime", [])
         return [Relation(anime, client=self._client) for anime in data]
 
+    @property
     def recommendations(self) -> Optional[list["Recommendation"]]:
         data = self._data.get("recommendations", [])
         return [Recommendation(anime, client=self._client) for anime in data]
