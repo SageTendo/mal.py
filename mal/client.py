@@ -259,6 +259,7 @@ class Client:
         offset: int = 0,
         sort: USER_LIST_SORT = "list_updated_at",
         status: USER_ANIME_STATUS = "watching",
+        nsfw: bool = False,
     ) -> list[Anime]:
         """
         Get a user's list of anime from MyAnimeList
@@ -276,12 +277,13 @@ class Client:
         offset = max(0, min(offset, OFFSET_LIMIT))
 
         url = (
-            f"{BASE_URL}/users/@me/animelist?"
-            f"limit={limit}&"
-            f"offset={offset}&"
-            f"sort={sort}&"
-            f"status={status}&"
-            f"fields={self.__ANIME_FIELDS}"
+            f"{BASE_URL}/users/@me/animelist"
+            f"?limit={limit}"
+            f"&offset={offset}"
+            f"&sort={sort}"
+            f"&status={status}"
+            f"&fields={self.__ANIME_FIELDS}"
+            f"&nsfw={nsfw}"
         )
         resp = await self._get(url, token=token)
         return [Anime(anime["node"], client=self) for anime in resp["data"]]
@@ -290,9 +292,9 @@ class Client:
         self,
         *,
         query: str,
-        limit: int = 1,
+        limit: int = 100,
         offset: int = 0,
-        token: Optional[str] = None,
+        nsfw: bool = False,
     ) -> list[Anime]:
         """
         Get a list of anime from MyAnimeList
@@ -309,8 +311,8 @@ class Client:
         limit = max(0, min(limit, QUERY_LIMIT))
         offset = max(0, min(offset, OFFSET_LIMIT))
 
-        url = f"{BASE_URL}/anime?q={query}?limit={limit}&offset={offset}&fields={self.__ANIME_FIELDS}"
-        resp = await self._get(url, token=token)
+        url = f"{BASE_URL}/anime?q={query}&limit={limit}&offset={offset}&fields={self.__ANIME_FIELDS}&nsfw={nsfw}"
+        resp = await self._get(url)
         return [Anime(anime["node"], client=self) for anime in resp["data"]]
 
     async def get_anime_details(
