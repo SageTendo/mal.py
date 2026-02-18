@@ -3,6 +3,9 @@ from aiohttp import ClientResponse
 
 class HTTPError(Exception):
     """Generic HTTP exception error"""
+    code: int
+    message: str
+    response: ClientResponse
 
     def __init__(self, response, message):
         self.response: ClientResponse = response
