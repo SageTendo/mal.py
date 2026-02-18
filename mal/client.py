@@ -82,6 +82,25 @@ class Client:
         headers["User-Agent"] = "Mal.py (https://github.com/SageTendo/mal.py)"
         args["headers"] = headers
 
+    def _handle_error(self, resp: aiohttp.ClientResponse, data: dict):
+        if resp.status == 400:
+            raise BadRequestError(resp, data.get("error", "Bad Request"))
+        if resp.status == 401:
+            raise UnauthorizedError(
+                resp,
+                data.get("error", "Unauthorized: No/Invalid Token Provided"),
+            )
+        if resp.status == 403:
+            raise ForbiddenError(
+                resp,
+                data.get(
+                    "error",
+                    "Forbidden: No/Invalid Token Provided or User Not Found",
+                ),
+            )
+        if resp.status == 404:
+            raise NotFoundError(resp, data.get("error", "Resource Not Found"))
+
     async def _get(self, url: str, **kwargs) -> dict:
         self._set_headers(kwargs)
         async with self._get_session() as session:
@@ -91,15 +110,9 @@ class Client:
                 if resp.status == 200:
                     return data
 
-                if resp.status == 400:
-                    raise BadRequestError(resp, data)
-                if resp.status == 401:
-                    raise UnauthorizedError(resp, data)
-                if resp.status == 403:
-                    raise ForbiddenError(resp, data)
-                if resp.status == 404:
-                    raise NotFoundError(resp, data)
-                raise HTTPError(resp, data)
+                if 400 <= resp.status < 500:
+                    self._handle_error(resp, data)
+                raise HTTPError(resp, await resp.text() or "Unknown Error")
 
     async def _post(self, url: str, **kwargs) -> dict:
         self._set_headers(kwargs)
@@ -110,11 +123,9 @@ class Client:
                 if resp.status == 200:
                     return data
 
-                if resp.status == 400:
-                    raise BadRequestError(resp, data)
-                if resp.status == 404:
-                    raise NotFoundError(resp, data)
-                raise HTTPError(resp, data)
+                if 400 <= resp.status < 500:
+                    self._handle_error(resp, data)
+                raise HTTPError(resp, await resp.text() or "Unknown Error")
 
     async def _put(self, url: str, **kwargs) -> dict:
         self._set_headers(kwargs)
@@ -125,15 +136,9 @@ class Client:
                 if resp.status == 200:
                     return data
 
-                if resp.status == 400:
-                    raise BadRequestError(resp, data)
-                if resp.status == 401:
-                    raise UnauthorizedError(resp, data)
-                if resp.status == 403:
-                    raise ForbiddenError(resp, data)
-                if resp.status == 404:
-                    raise NotFoundError(resp, data)
-                raise HTTPError(resp, data)
+                if 400 <= resp.status < 500:
+                    self._handle_error(resp, data)
+                raise HTTPError(resp, await resp.text() or "Unknown Error")
 
     def _check_required_oauth_info(self):
         if not self._client_id:
