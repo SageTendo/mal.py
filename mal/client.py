@@ -297,12 +297,12 @@ class Client:
         self,
         *,
         token: str,
+        year: int,
+        season: SEASONS,
         limit: int = 1,
         offset: int = 0,
         sort: SEASONAL_LIST_SORT = "anime_num_list_users",
         nsfw: bool = False,
-        year: int = 2026,
-        season: SEASONS = "summer",
     ) -> list[Anime]:
         """
         Get a list of seasonal anime from MyAnimeList
